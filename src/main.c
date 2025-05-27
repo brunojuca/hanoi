@@ -26,32 +26,37 @@ void printTowers(struct Stack *tower1, struct Stack *tower2, struct Stack *tower
     }
 }
 
-void hanoi(int n, struct Stack **source, struct Stack **dest, struct Stack **aux, int idSource, int idDest, int idAux)
+int hanoi(int n, struct Stack **source, struct Stack **dest, struct Stack **aux, int idSource, int idDest, int idAux)
 {
     if (n <= 0)
-        return;
+        return 0;
 
+    int moves = 0;
     struct Stack *disk;
     if (n == 1)
     {
         disk = pop(source);
         if (disk == NULL)
-            return;
+            return 0;
         push(dest, disk);
         printf("Mover disco %d de Torre %d para Torre %d\n", disk->value, idSource, idDest);
         printTowers(*source, *dest, *aux, idSource, idDest, idAux);
         printf("\n");
-        return;
+        return 1;
     }
-    hanoi(n - 1, source, aux, dest, idSource, idAux, idDest);
+
+    moves += hanoi(n - 1, source, aux, dest, idSource, idAux, idDest);
     disk = pop(source);
     if (disk == NULL)
-        return;
+        return moves;
     push(dest, disk);
     printf("Mover disco %d de Torre %d para Torre %d\n", disk->value, idSource, idDest);
     printTowers(*source, *dest, *aux, idSource, idDest, idAux);
     printf("\n");
-    hanoi(n - 1, aux, dest, source, idAux, idDest, idSource);
+    moves += 1;
+    moves += hanoi(n - 1, aux, dest, source, idAux, idDest, idSource);
+
+    return moves;
 }
 
 int main(int argc, char const *argv[])
@@ -85,12 +90,14 @@ int main(int argc, char const *argv[])
     printTowers(tower1, tower2, tower3, 1, 2, 3);
     printf("\n");
 
-    hanoi(n, &tower1, &tower2, &tower3, 1, 2, 3);
+    i = hanoi(n, &tower1, &tower2, &tower3, 1, 2, 3);
     printf("\n");
 
     printf("Torres finais:\n");
     printTowers(tower1, tower2, tower3, 1, 2, 3);
     printf("\n");
+
+    printf("Total de movimentos: %d\n", i);
 
     freeStack(tower1);
     freeStack(tower2);
